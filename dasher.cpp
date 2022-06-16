@@ -12,6 +12,21 @@ bool isOnGround(AnimData data, int windowHeight) {
   return data.pos.y >= windowHeight - data.rec.height;
 }
 
+AnimData updateAnimData(AnimData data, float deltaTime, int maxFrame) {
+  // Update running time
+  data.runningTime += deltaTime;
+  if(data.runningTime >= data.updateTime) {
+    data.runningTime = 0.0;
+    // Update animation frame
+    data.rec.x = data.frame * data.rec.width;
+    data.frame++;
+    if(data.frame > maxFrame) {
+      data.frame = 0;
+    }
+  }
+  return data;
+}
+
 int main() {
   //Array with window dimensions
   int windowDimensions[2];
@@ -101,31 +116,13 @@ int main() {
     scarfyData.pos.y += velocity * dT;
 
     // Update running time
-    scarfyData.runningTime += dT;
-    if(scarfyData.runningTime >= scarfyData.updateTime && !isInAir) {
-      scarfyData.runningTime = 0.0;
-      // Update animation frame
-      scarfyData.rec.x = scarfyData.frame * scarfyData.rec.width;
-      scarfyData.frame++;
-      
-      if(scarfyData.frame >= 5) {
-        scarfyData.frame = 0;
-      }
+    if(!isInAir) {
+      scarfyData = updateAnimData(scarfyData, dT, 5);
     }
-
+    
     for(int i = 0; i < sizeOfNebulae; i++) {
-      // Update nebula animation frame
-      nebulae[0].runningTime += dT;
-      if(nebulae[i].runningTime >= nebulae[i].updateTime) {
-        nebulae[i].runningTime = 0.0;
-        // Update animation frame
-        nebulae[i].rec.x = nebulae[i].frame * nebulae[i].rec.width;
-        nebulae[i].frame++;
-        
-        if(nebulae[i].frame >= 7) {
-          nebulae[i].frame = 0;
-        }
-      }
+      // Update nebula animation
+      nebulae[i] = updateAnimData(nebulae[i], dT, 7);
     }
 
     for(int i = 0; i < sizeOfNebulae; i++) {
